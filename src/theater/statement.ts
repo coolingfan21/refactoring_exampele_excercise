@@ -8,6 +8,13 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     minimumFractionDigits: 2,
   }).format
 
+  const volumeCreditsFor = (perf): number => {
+    let volumeCredits = 0
+    volumeCredits += Math.max(perf.audience - 30, 0)
+    if (playFor(perf).type === 'comedy') volumeCredits += Math.floor(perf.audience / 5)
+    return volumeCredits
+  }
+
   const playFor = (performance): IPlayType => {
     return plays[performance.playID]
   }
@@ -38,13 +45,9 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
   }
 
   for (const perf of invoice.performances) {
-    const thisAmount = amountFor(perf)
-
-    volumeCredits += Math.max(perf.audience - 30, 0)
-    if (playFor(perf).type === 'comedy') volumeCredits += Math.floor(perf.audience / 5)
-
-    result += ` ${playFor(perf).name}: ${format(thisAmount / 100)} (${perf.audience}석)\n`
-    totalAmount += thisAmount
+    volumeCredits += volumeCreditsFor(perf)
+    result += ` ${playFor(perf).name}: ${format(amountFor(perf) / 100)} (${perf.audience}석)\n`
+    totalAmount += amountFor(perf)
   }
 
   result += `총액: ${format(totalAmount / 100)}\n`
