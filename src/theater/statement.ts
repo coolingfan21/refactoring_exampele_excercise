@@ -1,7 +1,4 @@
-import { readFileSync } from 'fs'
-import { invoices } from './invoices'
-
-const statement = (invoice: IInvoice, plays: IPlays): string => {
+export const statement = (invoice: IInvoice, plays: IPlays): string => {
   let totalAmount = 0
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
@@ -36,17 +33,13 @@ const statement = (invoice: IInvoice, plays: IPlays): string => {
     volumeCredits += Math.max(perf.audience - 30, 0)
     if (play.type === 'comedy') volumeCredits += Math.floor(perf.audience / 5)
 
-    result += ` ${play.name}: ${format(thisAmount / 100)}\n`
+    result += ` ${play.name}: ${format(thisAmount / 100)} (${perf.audience}석)\n`
     totalAmount += thisAmount
   }
-  result += `총액: ${totalAmount / 100}\n`
+  result += `총액: ${format(totalAmount / 100)}\n`
   result += `적립 포인트: ${volumeCredits}점\n`
   return result
 }
-
-const playJSON = readFileSync('./play.json', { encoding: 'utf8' })
-const play = JSON.parse(playJSON)
-console.log('#### statement(invoices[0], play) #### : ', statement(invoices[0], play))
 
 interface IInvoice {
   customer: string
