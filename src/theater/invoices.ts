@@ -7,7 +7,7 @@ export const invoices = [
         audience: 55,
       },
       {
-        playID: 'as-like',
+        playID: 'as_like',
         audience: 35,
       },
       {

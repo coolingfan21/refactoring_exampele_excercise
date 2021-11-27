@@ -1,7 +1,7 @@
+import { readFileSync } from 'fs'
 import { invoices } from './invoices'
-import { play } from './play'
 
-const statement = (invoice: IInvoice, plays: any): string => {
+const statement = (invoice: IInvoice, plays: IPlays): string => {
   let totalAmount = 0
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
@@ -44,6 +44,10 @@ const statement = (invoice: IInvoice, plays: any): string => {
   return result
 }
 
+const playJSON = readFileSync('./play.json', { encoding: 'utf8' })
+const play = JSON.parse(playJSON)
+console.log('#### statement(invoices[0], play) #### : ', statement(invoices[0], play))
+
 interface IInvoice {
   customer: string
   performances: IPerformance[]
@@ -54,4 +58,13 @@ interface IPerformance {
   audience: number
 }
 
-console.log('#### statement(invoices[0], play) #### : ', statement(invoices[0], play))
+interface IPlays {
+  hamlet: IPlayType
+  as_like: IPlayType
+  othello: IPlayType
+}
+
+interface IPlayType {
+  name: string
+  type: string
+}
