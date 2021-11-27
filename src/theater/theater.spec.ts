@@ -1,7 +1,7 @@
 import { invoices } from './invoices'
 import { statement } from './statement'
 
-const play = {
+const plays = {
   hamlet: { name: 'Hamlet', type: 'tragedy' },
   as_like: { name: 'As You Like It', type: 'comedy' },
   othello: { name: 'Othello', type: 'tragedy' },
@@ -19,6 +19,6 @@ describe('Statement', () => {
   const targetInvoice = invoices[0]
 
   it('should be same invoice content & format', () => {
-    expect(statement(targetInvoice, play)).toBe(result)
+    expect(statement(targetInvoice, plays)).toBe(result)
   })
 })
