@@ -8,32 +8,36 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     minimumFractionDigits: 2,
   }).format
 
-  const amountFor = (perf, play): number => {
-    let thisAmount = 0
+  const playFor = (performance): IPlayType => {
+    return plays[performance.playID]
+  }
+
+  const amountFor = (performance, play): number => {
+    let result = 0
 
     switch (play.type) {
     case 'tragedy':
-      thisAmount = 40000
-      if (perf.audience > 30) {
-        thisAmount += 1000 * (perf.audience - 30)
+      result = 40000
+      if (performance.audience > 30) {
+        result += 1000 * (performance.audience - 30)
       }
       break
     case 'comedy':
-      thisAmount = 30000
-      if (perf.audience > 20) {
-        thisAmount += 10000 + 500 * (perf.audience - 20)
+      result = 30000
+      if (performance.audience > 20) {
+        result += 10000 + 500 * (performance.audience - 20)
       }
-      thisAmount += 300 * perf.audience
+      result += 300 * performance.audience
       break
     default:
       throw new Error(`알 수 없는 장르: ${play.type}`)
     }
 
-    return thisAmount
+    return result
   }
 
   for (const perf of invoice.performances) {
-    const play = plays[perf.playID]
+    const play = playFor(perf)
     const thisAmount = amountFor(perf, play)
 
     volumeCredits += Math.max(perf.audience - 30, 0)
