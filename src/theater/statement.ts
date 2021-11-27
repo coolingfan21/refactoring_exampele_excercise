@@ -8,8 +8,7 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     minimumFractionDigits: 2,
   }).format
 
-  for (const perf of invoice.performances) {
-    const play = plays[perf.playID]
+  const amountFor = (perf, play): number => {
     let thisAmount = 0
 
     switch (play.type) {
@@ -29,6 +28,13 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     default:
       throw new Error(`알 수 없는 장르: ${play.type}`)
     }
+
+    return thisAmount
+  }
+
+  for (const perf of invoice.performances) {
+    const play = plays[perf.playID]
+    const thisAmount = amountFor(perf, play)
 
     volumeCredits += Math.max(perf.audience - 30, 0)
     if (play.type === 'comedy') volumeCredits += Math.floor(perf.audience / 5)
