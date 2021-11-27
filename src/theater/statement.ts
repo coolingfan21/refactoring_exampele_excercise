@@ -1,11 +1,25 @@
 export const statement = (invoice: IInvoice, plays: IPlays): string => {
-  return renderPlainText(invoice, plays)
+  const statementData = {
+    customer: invoice.customer,
+    performances: invoice.performances.map(enrichPerformance),
+  }
+
+  function enrichPerformance (performance): any {
+    const result = Object.assign({}, performance)
+    result.play = playFor(result)
+    return result
+  }
+  function playFor (performance): IPlayType {
+    return plays[performance.playID]
+  }
+
+  return renderPlainText(statementData, plays)
 }
 
-function renderPlainText (invoice, plays): string {
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`
-  for (const perf of invoice.performances) {
-    result += ` ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`
+function renderPlainText (data, plays): string {
+  let result = `청구 내역 (고객명: ${data.customer})\n`
+  for (const perf of data.performances) {
+    result += ` ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`
   }
   result += `총액: ${usd(totalAmount())}\n`
   result += `적립 포인트: ${totalVolumeCredits()}점\n`
@@ -13,14 +27,14 @@ function renderPlainText (invoice, plays): string {
 
   function totalAmount (): number {
     let result = 0
-    for (const perf of invoice.performances) {
+    for (const perf of data.performances) {
       result += amountFor(perf)
     }
     return result
   }
   function totalVolumeCredits (): number {
     let result = 0
-    for (const perf of invoice.performances) {
+    for (const perf of data.performances) {
       result += volumeCreditsFor(perf)
     }
     return result
@@ -35,17 +49,14 @@ function renderPlainText (invoice, plays): string {
   function volumeCreditsFor (perf): number {
     let result = 0
     result += Math.max(perf.audience - 30, 0)
-    if (playFor(perf).type === 'comedy') result += Math.floor(perf.audience / 5)
+    if (perf.play.type === 'comedy') result += Math.floor(perf.audience / 5)
     return result
   }
-  function playFor (performance): IPlayType {
-    return plays[performance.playID]
-  }
+
   function amountFor (performance): number {
     let result = 0
-    const play = playFor(performance)
 
-    switch (play.type) {
+    switch (performance.play.type) {
     case 'tragedy':
       result = 40000
       if (performance.audience > 30) {
@@ -60,7 +71,7 @@ function renderPlainText (invoice, plays): string {
       result += 300 * performance.audience
       break
     default:
-      throw new Error(`알 수 없는 장르: ${play.type}`)
+      throw new Error(`알 수 없는 장르: ${performance.play.type}`)
     }
 
     return result
