@@ -1,4 +1,8 @@
 export const statement = (invoice: IInvoice, plays: IPlays): string => {
+  return renderPlainText(invoice, plays)
+}
+
+function renderPlainText (invoice, plays): string {
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
   for (const perf of invoice.performances) {
     result += ` ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n`
