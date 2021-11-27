@@ -12,8 +12,9 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     return plays[performance.playID]
   }
 
-  const amountFor = (performance, play): number => {
+  const amountFor = (performance): number => {
     let result = 0
+    const play = playFor(performance)
 
     switch (play.type) {
     case 'tragedy':
@@ -37,7 +38,7 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
   }
 
   for (const perf of invoice.performances) {
-    const thisAmount = amountFor(perf, playFor(perf))
+    const thisAmount = amountFor(perf)
 
     volumeCredits += Math.max(perf.audience - 30, 0)
     if (playFor(perf).type === 'comedy') volumeCredits += Math.floor(perf.audience / 5)
@@ -45,6 +46,7 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
     result += ` ${playFor(perf).name}: ${format(thisAmount / 100)} (${perf.audience}석)\n`
     totalAmount += thisAmount
   }
+
   result += `총액: ${format(totalAmount / 100)}\n`
   result += `적립 포인트: ${volumeCredits}점\n`
   return result
