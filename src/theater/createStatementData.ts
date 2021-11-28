@@ -1,9 +1,9 @@
 export const createStatementData: any = (invoice, plays) => {
-  const statementData: any = {}
-  statementData.customer = invoice.customer
-  statementData.performances = invoice.performances.map(enrichPerformance)
-  statementData.totalAmount = totalAmount(statementData)
-  statementData.totalVolumeCredits = totalVolumeCredits(statementData)
+  const result: any = {}
+  result.customer = invoice.customer
+  result.performances = invoice.performances.map(enrichPerformance)
+  result.totalAmount = totalAmount(result)
+  result.totalVolumeCredits = totalVolumeCredits(result)
 
   function enrichPerformance (performance): any {
     const result = Object.assign({}, performance)
@@ -50,7 +50,7 @@ export const createStatementData: any = (invoice, plays) => {
   function totalVolumeCredits (data): number {
     return data.performances.reduce((total, p) => total + p.volumeCredits, 0)
   }
-  return statementData
+  return result
 }
 
 interface IPlayType {
