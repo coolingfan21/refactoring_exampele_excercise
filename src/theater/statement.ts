@@ -1,4 +1,8 @@
 export const statement = (invoice: IInvoice, plays: IPlays): string => {
+  return renderPlainText(createStatementData(invoice, plays))
+}
+
+function createStatementData (invoice, plays): any {
   const statementData: any = {}
   statementData.customer = invoice.customer
   statementData.performances = invoice.performances.map(enrichPerformance)
@@ -50,9 +54,8 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
   function totalVolumeCredits (data): number {
     return data.performances.reduce((total, p) => total + p.volumeCredits, 0)
   }
-  return renderPlainText(statementData)
+  return statementData
 }
-
 function renderPlainText (data): string {
   let result = `청구 내역 (고객명: ${data.customer})\n`
   for (const perf of data.performances) {
