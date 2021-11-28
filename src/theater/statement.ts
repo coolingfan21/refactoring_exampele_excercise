@@ -1,13 +1,15 @@
 export const statement = (invoice: IInvoice, plays: IPlays): string => {
-  const statementData = {
-    customer: invoice.customer,
-    performances: invoice.performances.map(enrichPerformance),
-  }
+  const statementData: any = {}
+  statementData.customer = invoice.customer
+  statementData.performances = invoice.performances.map(enrichPerformance)
+  statementData.totalAmount = totalAmount(statementData)
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData)
 
   function enrichPerformance (performance): any {
     const result = Object.assign({}, performance)
     result.play = playFor(result)
     result.amount = amountFor(result)
+    result.volumeCredits = volumeCreditsFor(result)
     return result
   }
   function playFor (performance): IPlayType {
@@ -36,33 +38,29 @@ export const statement = (invoice: IInvoice, plays: IPlays): string => {
 
     return result
   }
-
-  return renderPlainText(statementData, plays)
+  function volumeCreditsFor (perf): number {
+    let result = 0
+    result += Math.max(perf.audience - 30, 0)
+    if (perf.play.type === 'comedy') result += Math.floor(perf.audience / 5)
+    return result
+  }
+  function totalAmount (data): number {
+    return data.performances.reduce((total, p) => total + p.amount, 0)
+  }
+  function totalVolumeCredits (data): number {
+    return data.performances.reduce((total, p) => total + p.volumeCredits, 0)
+  }
+  return renderPlainText(statementData)
 }
 
-function renderPlainText (data, plays): string {
+function renderPlainText (data): string {
   let result = `청구 내역 (고객명: ${data.customer})\n`
   for (const perf of data.performances) {
     result += ` ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n`
   }
-  result += `총액: ${usd(totalAmount())}\n`
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`
+  result += `총액: ${usd(data.totalAmount)}\n`
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`
   return result
-
-  function totalAmount (): number {
-    let result = 0
-    for (const perf of data.performances) {
-      result += perf.amount
-    }
-    return result
-  }
-  function totalVolumeCredits (): number {
-    let result = 0
-    for (const perf of data.performances) {
-      result += volumeCreditsFor(perf)
-    }
-    return result
-  }
   function usd (number): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -70,13 +68,6 @@ function renderPlainText (data, plays): string {
       minimumFractionDigits: 2,
     }).format(number / 100)
   }
-  function volumeCreditsFor (perf): number {
-    let result = 0
-    result += Math.max(perf.audience - 30, 0)
-    if (perf.play.type === 'comedy') result += Math.floor(perf.audience / 5)
-    return result
-  }
-
 }
 
 interface IInvoice {
