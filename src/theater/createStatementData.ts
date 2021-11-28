@@ -10,17 +10,11 @@ export const createStatementData: any = (invoice, plays) => {
     const result = Object.assign({}, performance)
     result.play = calculator.play
     result.amount = calculator.amount
-    result.volumeCredits = volumeCreditsFor(result)
+    result.volumeCredits = calculator.volumeCredits
     return result
   }
   function playFor (performance): IPlayType {
     return plays[performance.playID]
-  }
-  function volumeCreditsFor (perf): number {
-    let result = 0
-    result += Math.max(perf.audience - 30, 0)
-    if (perf.play.type === 'comedy') result += Math.floor(perf.audience / 5)
-    return result
   }
   function totalAmount (data): number {
     return data.performances.reduce((total, p) => total + p.amount, 0)
@@ -59,6 +53,13 @@ class PerformanceCalculator {
     default:
       throw new Error(`알 수 없는 장르: ${this.play.type}`)
     }
+    return result
+  }
+
+  get volumeCredits (): number {
+    let result = 0
+    result += Math.max(this.performance.audience - 30, 0)
+    if (this.play.type === 'comedy') result += Math.floor(this.performance.audience / 5)
     return result
   }
 }
